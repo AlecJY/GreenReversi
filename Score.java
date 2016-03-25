@@ -1,5 +1,8 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
+import java.awt.*;
+import java.util.List;
+
 /**
  * Write a description of class Score here.
  * 
@@ -8,12 +11,16 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class Score extends Actor
 {
-    /**
-     * Act - do whatever the Score wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
-    public void act() 
+    private Class cls;
+
+    public Score(Class cls) {
+        this.cls = cls;
+    }
+
+    public void act()
     {
-        // Add your action code here.
+        World world = getWorld();
+        List pieceList = world.getObjects(cls);
+        setImage(new GreenfootImage(Integer.toString(pieceList.size() - 1), 50, Color.WHITE, null));
     }    
 }
