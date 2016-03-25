@@ -1,5 +1,6 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
 public class Board extends World
 {
 
-    private Current currentText = new Current();
+    private Current currentStatus = new Current();
     /**
      * Constructor for objects of class Board.
      * 
@@ -47,12 +48,14 @@ public class Board extends World
         Score whiteScore = new Score(WhitePiece.class);
         addObject(whiteScore, 11, 4);
 
-        addObject(currentText, 10, 7);
+        addObject(currentStatus, 10, 7);
         Piece piece = new Piece();
         addObject(piece, 12, 7);
     }
 
     private int current = 1;
+    private boolean blackAvailable = true;
+    private boolean whiteAvailable = true;
 
     public void act() {
         if (Greenfoot.mouseClicked(this)) {
@@ -62,14 +65,30 @@ public class Board extends World
                 if (current == 1) {
                     if (reverse(x, y, current)) {
                         addObject(new BlackPiece(), x, y);
-                        currentText.reverse();
+                        currentStatus.reverse();
                         current = 2;
+                        if (!checkAvailable(current)) {
+                            if (!checkAvailable(1)) {
+                                win();
+                            } else {
+                                current = 1;
+                                currentStatus.reverse();
+                            }
+                        }
                     }
                 } else {
                     if (reverse(x, y, current)) {
                         addObject(new WhitePiece(), x, y);
-                        currentText.reverse();
+                        currentStatus.reverse();
                         current = 1;
+                        if (!checkAvailable(current)) {
+                            if (!checkAvailable(2)) {
+                                win();
+                            } else {
+                                current = 2;
+                                currentStatus.reverse();
+                            }
+                        }
                     }
                 }
             }
@@ -170,9 +189,45 @@ public class Board extends World
         return reversed;
     }
 
-    private boolean checkWin() {
+    private boolean checkAvailable(int current) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                if (getPieceType(i, j) == 0) {
+                    if (checkLine(i, j, 1, 0, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, -1, 0, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, 0, 1, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, 0, -1, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, 1, 1, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, -1, -1, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, 1, -1, current) > 1) {
+                        return true;
+                    } else if (checkLine(i, j, -1, 1, current) > 1) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
-
+    private void win() {
+        WinText winText = new WinText();
+        if (getObjects(BlackPiece.class).size() > getObjects(WhitePiece.class).size()) {
+            winText.setImage(new GreenfootImage("Black wins!!!", 40, Color.WHITE, null));
+        } else if (getObjects(BlackPiece.class).size() == getObjects(WhitePiece.class).size()) {
+            winText.setImage(new GreenfootImage("Draw!!!", 40, Color.WHITE, null));
+        } else {
+            winText.setImage(new GreenfootImage("White wins!!!", 40, Color.WHITE, null));
+        }
+        addObject(winText, 11, 6);
+        removeObject(getObjectsAt(10, 7, Actor.class).get(0));
+        removeObject(getObjectsAt(12, 7, Actor.class).get(0));
+        Greenfoot.stop();
+    }
 }
